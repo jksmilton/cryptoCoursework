@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "qOne.h"
+#include <stdbool.h>
 
 #define ADD_IDENT 0
 #define MULT_IDENT 1
@@ -27,7 +28,12 @@ int main(int argc, char*argv[])
 		printmTable(mTable, prime);
 		printRootTable(rootTable, prime);
 		printf("\n");
-		printf("Order of elliptic: %i", getOrderOfElliptic(prime, A, B, mTable, aTable, rootTable));
+
+		groupMem* pointList = getEllipticPoints(prime, A, B, mTable, aTable, rootTable);
+
+		int order = getOrderOfElliptic(pointList);
+
+		printf("Order of elliptic: %i", order);
 	}
 }
 
@@ -138,22 +144,35 @@ int** createRootTable(int** table, int prime)
 	return rootTable;
 }
 
-int getOrderOfElliptic(int prime, int a, int b, int** mTable, int** aTable, int** rootTable)
+groupMem* createNode(int x, int y, groupMem* node)
 {
-	int order = 0;
+	node->x = x;
+	node->y = y;
+	node->next = (groupMem*) malloc(sizeof(groupMem));
+	return node->next;
+}
+
+groupMem* getEllipticPoints(int prime, int a, int b, int** mTable, int** aTable, int** rootTable)
+{
+	groupMem* first = (groupMem*) malloc(sizeof(groupMem));
+	groupMem* crnt = first;
+	groupMem* prev, tmp;
 
 	if(rootTable[b][0] != -1 && b != 0)
 	{
-		order += 2;
 		printf("X: %i; Y: %i\n", 0, rootTable[b][0]);
 		printf("X: %i; Y: %i\n", 0, rootTable[b][1]);
+		crnt = createNode(0, rootTable[b][0], crnt);
+		prev = crnt;
+		crnt = createNode(0, rootTable[b][1], crnt);
 	}
 	else if(b == 0)
 	{
-		order++;
 		printf("X: %i; Y: %i\n", 0, 0);
+		prev = crnt;
+		crnt = createNode(0, 0, crnt);
 	}
-
+	
 	for(int i = 1; i < prime; i++)
 	{
 		int elOne = mTable[i][i];
@@ -164,17 +183,41 @@ int getOrderOfElliptic(int prime, int a, int b, int** mTable, int** aTable, int*
 
 		if(rootTable[elOne][0] != -1 && elOne != 0)
 		{
-			order += 2;
 			printf("X: %i; Y: %i\n", i, rootTable[elOne][0]);
 			printf("X: %i; Y: %i\n", i, rootTable[elOne][1]);
+			crnt = createNode(i, rootTable[i][0], crnt);
+			prev = crnt;
+			crnt = createNode(i, rootTable[i][1], crnt);
 		}
 		else if(elOne == 0)
 		{
-			order++;
 			printf("X: %i; Y: %i\n", i, 0);
+			prev = crnt;
+			crnt = createNode(i, 0, crnt);
 		}
 
 	}
+	
+	prev->next = 0;
+	free(crnt);
 
+	return first;
+}
+
+int getOrderOfElliptic(groupMem* mem)
+{
+	int order = 0;
+	groupMem* crnt = mem;
+
+	do
+	{
+		order++;
+		crnt = crnt->next;
+	}
+	while(crnt != 0);
+	//for the point at infinity
+	order += 1;
 	return order;
 }
+
+
