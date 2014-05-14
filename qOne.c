@@ -43,7 +43,7 @@ int main(int argc, char*argv[])
 
 		groupMem* generator = getGenerator(pointList, A, B, mTable, aTable, invmTable, prime, order);
 
-		
+
 		printf("Generator X: %i; Y: %i\n", generator->x, generator->y);
 
 		int personOneRand, personTwoRand;
@@ -71,8 +71,6 @@ int main(int argc, char*argv[])
 
 		groupMem* personTwoSecret = raiseToPower(personOneDist, personTwoRand, prime, A,
 			mTable, invmTable, aTable);
-
-		
 
 		personTwoRand = rand() % prime;
 		personOneRand = rand() % prime;
@@ -201,13 +199,13 @@ void printRootTable(int* table, int prime)
 
 int** createMultiplicationTable(int prime)
 {
-	
+
 	int** table = (int**) malloc(prime * sizeof(int*));
 
 	for(int i = 0; i < prime; i++)
 	{
 		table[i] = (int*) malloc(prime * sizeof(int));
-		
+
 		for(int j = 0; j < prime; j++)
 		{
 			int val = i * j;
@@ -229,7 +227,7 @@ int* createInverseTable(int** table, int prime, int ident)
 			{
 				inverseTable[i] = j;
 			}
-			
+
 		}
 	}
 	return inverseTable;
@@ -242,7 +240,7 @@ int** createAdditionTable(int prime)
 	for(int i = 0; i < prime; i++)
 	{
 		table[i] = (int*) malloc(prime * sizeof(int));
-		
+
 		for(int j = 0; j < prime; j++)
 		{
 			int val = i + j;
@@ -307,7 +305,7 @@ groupMem* getEllipticPoints(int prime, int a, int b, int** mTable, int** aTable,
 		prev = crnt;
 		crnt = createNode(0, 0, crnt);
 	}
-	
+
 	for(int i = 1; i < prime; i++)
 	{
 		int elOne = mTable[i][i];
@@ -332,7 +330,7 @@ groupMem* getEllipticPoints(int prime, int a, int b, int** mTable, int** aTable,
 		}
 
 	}
-	
+
 	prev->next = 0;
 	free(crnt);
 
@@ -416,7 +414,7 @@ groupMem* addElliptic(groupMem* one, groupMem* two, int prime, int** mTable,
 	newEl->y = newY;
 	printf("end\n");
 	return newEl;
-	
+
 }
 
 groupMem* doubleElliptic(groupMem* one, int prime, int** mTable,
