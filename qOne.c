@@ -106,8 +106,8 @@ int main(int argc, char*argv[])
 
 		printf("%s\n", text);
 		printf("%s\n", encrypted);
-
-		char* decrypted = decrypt(personTwoSecret->x, personTwoInitSecret->x, encrypted);
+		int length = strlen(text);
+		char* decrypted = decrypt(personTwoSecret->x, personTwoInitSecret->x, encrypted, length);
 		printf("%s\n", decrypted);
 	}
 }
@@ -133,10 +133,9 @@ char* encrypt(int key, int vector, char* initialStr)
 	return encrypted;
 }
 
-char* decrypt(int key, int vector, char* initialStr)
+char* decrypt(int key, int vector, char* initialStr, int len)
 {
-	int len = strlen(initialStr);
-
+	
 	char* encrypted = (char*) malloc((len * sizeof(char)) + 1);
 
 	char temp = initialStr[0] ^ key;
@@ -162,9 +161,34 @@ groupMem* raiseToPower(groupMem* g, int power, int prime, int a, int** mTable,
 
 	for(int i = 2; i < power; i++)
 	{
+		
+		printf("raising to power: %i\n", i + 1);
+		printf("crntx: %i, generatorx: %i\n", crnt->x, g->x);
+		printf("crnty: %i, generatory: %i\n", crnt->y, g->y);
 		prev = crnt;
-		crnt = addElliptic(crnt, g, prime, mTable, aTable, invmTable);
-		free(prev);
+
+		if(crnt->x == g->x && power - i >= 3)
+		{
+			i += 2;
+			crnt = doubleElliptic(g, prime, mTable, aTable, invmTable, a);
+			free(prev);
+		}
+		else if(crnt->x == g->x && power - i > 1)
+		{
+			crnt = g;
+			i = power;
+		} 
+		else if(crnt->x == g->x)
+		{
+			printf("cant deal with infinity points");
+			assert(true == false);
+		}
+		else
+		{
+			crnt = addElliptic(crnt, g, prime, mTable, aTable, invmTable);
+			free(prev);
+		}
+		
 	}
 	return crnt;
 }
@@ -393,14 +417,16 @@ groupMem* getGenerator(groupMem* list, int a, int b, int** mTable, int** aTable,
 groupMem* addElliptic(groupMem* one, groupMem* two, int prime, int** mTable,
 	int** aTable, int* invmTable)
 {
-	int yDif = (one->y - two->y  + prime) % prime;
-	int xDif = (one->x - two->x  + prime) % prime;
-	printf("a\n");
+	printf("x1 %i x2 %i\n", one->x, two->x);
+	int yDif = ((one->y - two->y)  + prime) % prime;
+	int xDif = ((one->x - two->x)  + prime) % prime;
+	printf("xdif %i ydif %i\n", xDif, yDif);
 	int slope = mTable[yDif][invmTable[xDif]];
 	printf("a\n");
 	int slopeSq = mTable[slope][slope];
 	printf("%i\n", slopeSq);
-	int newX = slopeSq - (one->x + two->x);
+	int newX = (slopeSq - (one->x + two->x)) % prime;
+	printf("new X %i\n", newX);
 	newX = newX + prime;
 	newX = newX % prime;
 	printf("a\n");
@@ -422,18 +448,19 @@ groupMem* doubleElliptic(groupMem* one, int prime, int** mTable,
 {
 	//general form slope: slope= (3x^2 + a)/2y
 	int firstTerm = mTable[3][mTable[one->x][one->x]];
-	//printf("a\n");
+	printf("b\n");
 	int denominator = mTable[2][one->y];
-	//printf("b\n");
+	printf("b\n");
 	denominator = invmTable[denominator];
-	//printf("b\n");
+	printf("b\n");
 	int slope = mTable[aTable[firstTerm][a]][denominator];
-	//printf("c\n");
+	printf("c\n");
 	int slopeSq = mTable[slope][slope];
-	//printf("d\n");
-	int newX = aTable[slopeSq][prime - aTable[one->x][one->x]];
-	int newY = prime - aTable[mTable[slope][aTable[newX][prime - one->x]]][one->y];
-	//printf("e\n");
+	printf("%i ; %i ; %i\n", slopeSq, prime, one->x);
+	int newX = aTable[slopeSq][(prime - aTable[one->x][one->x]) % prime];
+	printf("%i\n", newX);
+	int newY = prime - aTable[mTable[slope][aTable[newX][(prime - one->x) % prime]]][one->y];
+	printf("e\n");
 	groupMem* newEl = (groupMem*) malloc(sizeof(groupMem));
 	newEl->x = newX;
 	newEl->y = newY;

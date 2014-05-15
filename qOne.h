@@ -37,4 +37,4 @@ groupMem* raiseToPower(groupMem* g, int power, int prime, int a, int** mTable,
 
 char* encrypt(int key, int vector, char* initialStr);
 
-char* decrypt(int key, int vector, char* initialStr);
+char* decrypt(int key, int vector, char* initialStr, int len);
