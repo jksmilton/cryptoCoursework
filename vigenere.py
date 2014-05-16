@@ -32,11 +32,9 @@ def incidentOfCoincidence(text, step):
 			mapOfCounts[text[i]] = mapOfCounts[text[i]] + 1
 			i = i + step
 			n = n + 1
-
 		sumOfcounts = 0
 		for v in mapOfCounts.values():
 			sumOfcounts = v * (v - 1) + sumOfcounts
-
 		divisor = n * (n - 1) / 26
 		sumOfcounts = sumOfcounts / divisor
 		incidence = incidence + sumOfcounts
@@ -93,7 +91,7 @@ def bruteForce(columns, original, counter):
 			#print(candidateAttempt)
 			#print(dicMatch)
 			if  dicMatch > passRate:
-				#print('here')
+				print('here')
 				#print(i)
 				candidates.append(candidateAttempt)
 	return candidates
