@@ -86,15 +86,15 @@ def bruteForce(columns, original, counter):
 		crntColumns = columns[:counter] + [newLine] + columns[counter + 1:]
 		if counter < len(columns) - 1:
 			candidates.extend(bruteForce(crntColumns, original, counter + 1))
-			#print('key: ' + `i` + 'counter: ' + `counter`)
+			print('key: ' + `i` + 'counter: ' + `counter`)
 		else:
 			candidateAttempt = rebuild(crntColumns, original)
 			dicMatch = dictionaryCheck(candidateAttempt)
 			#print(candidateAttempt)
 			#print(dicMatch)
 			if  dicMatch > passRate:
-				#print('here')
-				#print(i)
+				print('here')
+				print(i)
 				candidates.append(candidateAttempt)
 	return candidates
 
